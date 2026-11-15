@@ -39,6 +39,7 @@ pub struct ConvertedShortcut {
     mask: Modifiers,
     repeat: bool,
     allow_locked: bool,
+    allow_inhibited: bool,
     #[derivative(PartialEq(compare_with = "Rc::ptr_eq"))]
     shortcut: Rc<dyn Fn()>,
 }
@@ -54,6 +55,7 @@ enum ModeDiff {
         mask: Modifiers,
         repeat: bool,
         allow_locked: bool,
+        allow_inhibited: bool,
         f: Rc<dyn Fn()>,
     },
     Unbind(ModifiedKeySym),
@@ -217,6 +219,7 @@ impl State {
         {
             return None;
         }
+        let allow_inhibited = shortcut_allows_inhibited(&shortcut);
         let mut f = shortcut.action.into_shortcut_fn(self);
         if let Some(l) = shortcut.latch {
             let l = l.into_rc_fn(self);
@@ -231,6 +234,7 @@ impl State {
             mask: shortcut.mask,
             repeat: shortcut.repeat,
             allow_locked: shortcut.allow_locked,
+            allow_inhibited,
             shortcut: f,
         })
     }
@@ -247,6 +251,7 @@ impl State {
                     mask,
                     repeat,
                     allow_locked,
+                    allow_inhibited,
                     f,
                 } => {
                     let f = f.clone();
@@ -256,6 +261,9 @@ impl State {
                     }
                     if *allow_locked {
                         seat.set_bind_allow_locked(*key, true);
+                    }
+                    if *allow_inhibited {
+                        seat.set_bind_allow_inhibited(*key, true);
                     }
                 }
                 ModeDiff::Unbind(key) => {
@@ -284,6 +292,7 @@ impl State {
                             mask: sc.mask,
                             repeat: sc.repeat,
                             allow_locked: sc.allow_locked,
+                            allow_inhibited: sc.allow_inhibited,
                             f: sc.shortcut.clone(),
                         });
                     }
@@ -297,4 +306,17 @@ impl State {
             }
         }
     }
+}
+
+pub(crate) fn shortcut_allows_inhibited(shortcut: &Shortcut) -> bool {
+    shortcut.allow_inhibited
+        || matches!(
+            shortcut.action,
+            Action::SimpleCommand {
+                cmd: SimpleCommand::Close
+                    | SimpleCommand::DisableShortcutsInhibitor
+                    | SimpleCommand::SetShortcutsInhibitEnabled(false)
+                    | SimpleCommand::ToggleShortcutsInhibitEnabled,
+            }
+        )
 }
