@@ -1165,6 +1165,14 @@ pub enum ClientMessage<'a> {
         enabled: bool,
     },
     GetShortcutsInhibitEnabled,
+    SetAutotile {
+        enabled: bool,
+    },
+    GetAutotile,
+    SetWindowMatcherAutotile {
+        matcher: WindowMatcher,
+        autotile: bool,
+    },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -1467,6 +1475,9 @@ pub enum Response {
         borders: Option<JcContainerBorders>,
     },
     GetShortcutsInhibitEnabled {
+        enabled: bool,
+    },
+    GetAutotile {
         enabled: bool,
     },
 }

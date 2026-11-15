@@ -90,6 +90,7 @@ use jay_config::on_unload;
 use jay_config::open_control_center;
 use jay_config::quit;
 use jay_config::reload;
+use jay_config::set_autotile;
 use jay_config::set_color_management_enabled;
 use jay_config::set_configure_timeout;
 use jay_config::set_default_workspace_capture;
@@ -128,6 +129,7 @@ use jay_config::theme::set_font;
 use jay_config::theme::set_show_window_icons;
 use jay_config::theme::set_title_font;
 use jay_config::theme::set_window_icons_grayscale;
+use jay_config::toggle_autotile;
 use jay_config::toggle_float_above_fullscreen;
 use jay_config::toggle_shortcuts_inhibit_enabled;
 use jay_config::toggle_show_bar;
@@ -402,6 +404,8 @@ impl Action {
                     b.new(move || set_split_reuses_container(v))
                 }
                 SimpleCommand::ToggleSplitReusesContainer => b.new(toggle_split_reuses_container),
+                SimpleCommand::SetAutotile(v) => b.new(move || set_autotile(v)),
+                SimpleCommand::ToggleAutotile => b.new(toggle_autotile),
                 SimpleCommand::ResetWindowTheme => window!(w, w.theme().reset()),
             },
             Action::Multi { actions } => {
@@ -2030,6 +2034,9 @@ fn load_config(initial_load: bool, auto_reload: bool, persistent: &Rc<Persistent
     }
     if let Some(v) = config.split_reuses_container {
         set_split_reuses_container(v);
+    }
+    if let Some(v) = config.autotile {
+        set_autotile(v);
     }
     if let Some(v) = config.show_titles {
         set_show_titles(v);

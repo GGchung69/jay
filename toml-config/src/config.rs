@@ -127,6 +127,8 @@ pub enum SimpleCommand {
     ToggleVisualizeCompositing,
     SetSplitReusesContainer(bool),
     ToggleSplitReusesContainer,
+    SetAutotile(bool),
+    ToggleAutotile,
     SetSplitRelative(ContainerTarget, RelativeAxis),
     SplitRelative(RelativeAxis),
     SetShortcutsInhibitEnabled(bool),
@@ -414,6 +416,7 @@ pub struct WindowRule {
     pub initial_tile_state: Option<TileState>,
     pub initial_floating_size: Option<(i32, i32)>,
     pub initial_floating_position: Option<(i32, i32)>,
+    pub autotile: Option<bool>,
 }
 
 #[derive(Default, Debug, Clone)]
@@ -675,6 +678,7 @@ pub struct Config {
     pub use_hardware_cursor: Option<bool>,
     pub show_bar: Option<bool>,
     pub split_reuses_container: Option<bool>,
+    pub autotile: Option<bool>,
     pub show_titles: Option<bool>,
     pub focus_history: Option<FocusHistory>,
     pub middle_click_paste: Option<bool>,
